@@ -1,14 +1,11 @@
-# Teaching-HEIGVD-SRX-2022-Laboratoire-Firewall
+# HEIGVD - Sécurité des Réseaux - 2023
+# Laboratoire n°2 - Firewall
 
 **Travail à réaliser en équipes de deux personnes.**
 
-**ATTENTION : Commencez par créer un Fork de ce repo et travaillez sur votre fork.**
-
-Clonez le repo sur votre machine. Vous retrouverez notamment dans ce repo les ficher `Dockerfile` et `docker-compose.yml` indispensables pour l'ajout des conteneurs et configuration du réseau.
-
 Vous pouvez répondre aux questions en modifiant directement votre clone du README.md ou avec un fichier pdf que vous pourrez uploader sur votre fork.
 
-**Le rendu consiste simplement à compléter toutes les parties marquées avec la mention "LIVRABLE". Le rendu doit se faire par une "pull request". Envoyer également le hash du dernier commit et votre username GitHub par email au professeur et à l'assistant**
+**Le rendu consiste simplement à compléter toutes les parties marquées avec la mention "LIVRABLE". Le rendu doit se faire par une "pull request".**
 
 ## Table de matières
 
@@ -36,7 +33,7 @@ Vous pouvez répondre aux questions en modifiant directement votre clone du READ
 
 [Règles finales](#règles-finales)
 
-## Introduction
+# Introduction
 
 L’objectif principal de ce laboratoire est de familiariser les étudiants avec les pares-feu et en particulier avec `netfilter` et `nftables`, le successeur du vénérable `iptables`.
 En premier, une partie théorique permet d’approfondir la rédaction de règles de filtrage.
@@ -49,11 +46,11 @@ La documentation contient aussi un excellent résumé pour "[apprendre nftables 
 
 ## Auteurs
 
-Ce texte se réfère au laboratoire « Pare-feu » à suivre dans le cadre du cours Sécurité des Réseaux, 2022, version 8.0.  Au cours du temps, il a été rédigé, modifié et amélioré par les co-auteurs suivants : Gilles-Etienne Vallat, Alexandre Délez, Olivia Manz, Patrick Mast, Christian Buchs, Sylvain Pasini, Vincent Pezzi, Yohan Martini, Ioana Carlson, Abraham Rubinstein et Frédéric Saam.
+Ce texte se réfère au laboratoire « Pare-feu » à suivre dans le cadre du cours Sécurité des Réseaux, 2023, version 9.0.  Au cours du temps, il a été rédigé, modifié et amélioré par les co-auteurs suivants : Gilles-Etienne Vallat, Alexandre Délez, Olivia Manz, Patrick Mast, Christian Buchs, Sylvain Pasini, Vincent Pezzi, Yohan Martini, Ioana Carlson, Abraham Rubinstein, Frédéric Saam et Linus Gasser.
 
 ## Echéance
 
-Ce travail devra être rendu le dimanche après la fin de la 2ème séance de laboratoire, soit au plus tard, **le 20 Mars 2022, à 23h59.**
+Ce travail devra être rendu le dimanche après la fin de la 2ème séance de laboratoire, soit au plus tard, **le 19 Mars 2023, à 23h59.**
 
 # Réseaux cible
 
@@ -63,7 +60,7 @@ Durant ce laboratoire, nous allons utiliser une seule topologie réseau :
 
 ![Topologie du réseau virtualisé](figures/Topologie.png)
 
-Notre réseau local (LAN) sera connecté à Internet (WAN) au travers d’un pare-feu. Nous placerons un serveur Web en zone démilitarisée (DMZ).
+Notre réseau local (LAN) sera connecté à Internet (WAN) à travers d’un pare-feu. Nous placerons un serveur Web en zone démilitarisée (DMZ).
 
 Par conséquent, nous distinguons clairement trois sous-réseaux :
 
@@ -105,7 +102,7 @@ Le **WAN** n'est que l'accès à Internet. Il est connecté au réseau de l'éco
 Pour établir la table de filtrage, voici les **conditions à respecter** dans le cadre de ce laboratoire :
 
 1.	Les **serveurs DNS** utilisés par les postes dans le LAN sont situés sur le WAN. Les services DNS utilisent les ports UDP 53 et TCP 53.
-2.	Laisser passer les **PING** uniquement du LAN au WAN, du LAN à la DMZ et de la DMZ au LAN pour les tests. Le ping utilise le protocole ICMP (echo request et echo reply).
+2.	Laisser passer les **PING** uniquement du LAN au WAN et du LAN à la DMZ. La DMZ ne doit pas pouvoir contacter le LAN. Le ping utilise le protocole ICMP (echo request et echo reply).
 3.	Les clients du **LAN** doivent pouvoir ouvrir des connexions HTTP pour accéder au web. Le protocole HTTP utilise les ports TCP 80 et typiquement aussi le 8080.
 4.	Les clients du **LAN** doivent pouvoir ouvrir des connexions HTTPS pour accéder au web. Le protocole HTTPS utilise le port TCP 443.
 5.	Le serveur **web en DMZ** doit être atteignable par le WAN et le LAN et n'utilise que le port 80.
@@ -124,7 +121,7 @@ Pour établir la table de filtrage, voici les **conditions à respecter** dans l
 _Pour l'autorisation d'accès (**Accept**), il s'agit d'être le plus précis possible lors de la définition de la source et la destination : si l'accès ne concerne qu'une seule machine (ou un groupe), il faut préciser son adresse IP ou son nom (si vous ne pouvez pas encore la déterminer), et non la zone.
 Appliquer le principe inverse (être le plus large possible) lorsqu'il faut refuser (**Drop**) une connexion._
 
-_Lors de la définition d'une zone, spécifier l'adresse du sous-réseau IP avec son masque (par exemple, "/24" correspond à 255.255.255.0) ou l'interface réseau (par exemple : "interface WAN") si l'adresse du sous-réseau ne peut pas être déterminé avec précision._
+_Lors de la définition d'une zone, spécifier l'adresse du sous-réseau IP avec son masque (par exemple, "/24" correspond à 255.255.255.0) ou l'interface réseau (par exemple : "interface WAN") si l'adresse du sous-réseau ne peut pas être déterminée avec précision._
 
 ---
 
@@ -176,11 +173,13 @@ Le téléchargement et génération d'images prend peu de temps.
 
 Vous pouvez vérifier que les réseaux ont été créés avec la commande `docker network ls`. Un réseau `lan` et un réseau `dmz` devraient se trouver dans la liste.
 
-Les images utilisées pour les conteneurs sont basées sur l'image officielle Ubuntu. Le fichier `Dockerfile` que vous avez téléchargé contient les informations nécessaires pour la génération de l'image de base. `docker-compose` l'utilise comme un modèle pour générer les conteneurs. Vous pouvez vérifier que les trois conteneurs sont crées et qu'ils fonctionnent à l'aide de la commande suivante.
+Les images utilisées pour les conteneurs sont basées sur l'image officielle Ubuntu. Le fichier `Dockerfile` que vous avez téléchargé contient les informations nécessaires pour la génération de l'image de base. `docker-compose` l'utilise comme un modèle pour générer les conteneurs. Vous pouvez vérifier que les trois conteneurs sont crées et qu'ils fonctionnent à l'aide de la commande suivante:
 
 ```bash
-docker ps
+docker-compose ps
 ```
+
+Pour que ça marche, vous devez être dans le répertoire où se trouve le docker-compose.yaml.
 
 ## Communication avec les conteneurs et configuration du firewall
 
@@ -193,13 +192,13 @@ Afin de simplifier vos manipulations, les conteneurs ont été configurées avec
 Pour accéder au terminal de l’une des machines, il suffit de taper :
 
 ```bash
-docker exec -it <nom_de_la_machine> /bin/bash
+docker-compose exec <nom_de_la_machine> /bin/bash
 ```
 
 Par exemple, pour ouvrir un terminal sur votre firewall :
 
 ```bash
-docker exec -it Firewall /bin/bash
+docker-compose exec Firewall /bin/bash
 ```
 
 Vous pouvez bien évidemment lancer des terminaux avec les trois machines en même temps !
@@ -397,7 +396,6 @@ Pour commencer sur une base fonctionnelle, nous allons configurer le pare-feu po
 Le but est de configurer les règles pour que le pare-feu accepte
 -	les ping depuis le LAN sur les machines de la DMZ,
 -	les ping depuis le LAN sur le WAN,
--	les ping depuis la DMZ vers le LAN.
 
 Ceci correspond a la **condition 2** du cahier des charges.
 
