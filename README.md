@@ -112,11 +112,8 @@ Pour établir la table de filtrage, voici les **conditions à respecter** dans l
 
 # Regles de filtrage
 
-<ol type="a" start="1">
-  <li>En suivant la méthodologie vue en classe, établir la table de filtrage avec précision en spécifiant la source et la destination, le type de trafic (TCP/UDP/ICMP/any), les ports sources et destinations ainsi que l'action désirée (<b>Accept</b> ou <b>Drop</b>, éventuellement <b>Reject</b>).
+a) En suivant la méthodologie vue en classe, établir la table de filtrage avec précision en spécifiant la source et la destination, le type de trafic (TCP/UDP/ICMP/any), les ports sources et destinations ainsi que l'action désirée (<b>Accept</b> ou <b>Drop</b>, éventuellement <b>Reject</b>).
   Pour cette partie, écrivez les règles en prenant en compte que vous allez mettre en place un Firewall <b>stateless</b>.
-  </li>                                  
-</ol>
 
 _Pour l'autorisation d'accès (**Accept**), il s'agit d'être le plus précis possible lors de la définition de la source et la destination : si l'accès ne concerne qu'une seule machine (ou un groupe), il faut préciser son adresse IP ou son nom (si vous ne pouvez pas encore la déterminer), et non la zone.
 Appliquer le principe inverse (être le plus large possible) lorsqu'il faut refuser (**Drop**) une connexion._
@@ -192,13 +189,13 @@ Afin de simplifier vos manipulations, les conteneurs ont été configurées avec
 Pour accéder au terminal de l’une des machines, il suffit de taper :
 
 ```bash
-docker-compose exec <nom_de_la_machine> /bin/bash
+docker exec -ti <nom_de_la_machine> /bin/bash
 ```
 
 Par exemple, pour ouvrir un terminal sur votre firewall :
 
 ```bash
-docker-compose exec Firewall /bin/bash
+docker exec -ti Firewall /bin/bash
 ```
 
 Vous pouvez bien évidemment lancer des terminaux avec les trois machines en même temps !
@@ -279,18 +276,15 @@ Si votre ping passe mais que la réponse contient un _Redirect Host_, ceci indiq
 On va fournir une route vers l'internet à travers le firewall aux deux réseaux connectés. Pour cela, on va se servir des premières commandes `nftables` :
 
 ```bash
-nft add table nat
-nft 'add chain nat postrouting { type nat hook postrouting priority 100 ; }'
-nft add rule nat postrouting meta oifname "eth0" masquerade
+nft add table fw_nat
+nft 'add chain fw_nat postrouting { type nat hook postrouting priority 100 ; }'
+nft add rule fw_nat postrouting meta oifname "eth0" masquerade
 ```
 
 La dernière commande `nftables` définit une règle dans le tableau NAT qui permet la redirection de ports et donc, l'accès à l'Internet pour les deux autres machines à travers l'interface eth0 qui est connectée au WAN.
 
 
-<ol type="a" start="2">
-  <li>Quelle est l'utilité de la première commande ?
-  </li>                                  
-</ol>
+b) Quelle est l'utilité de la première commande ?
 
 ---
 
@@ -298,10 +292,7 @@ La dernière commande `nftables` définit une règle dans le tableau NAT qui per
 
 ---
 
-<ol type="a" start="3">
-  <li>Quelle est l'utilité de la deuxième commande ? Expliquer chacun des paramètres.
-  </li>                                  
-</ol>
+c) Quelle est l'utilité de la deuxième commande ? Expliquer chacun des paramètres.
 
 ---
 
@@ -327,17 +318,14 @@ Une règle permet d’autoriser ou d’interdire une connexion. `nftables` met �
 
 `nftables` vous permet la configuration de pare-feux avec et sans état. **Pour ce laboratoire, vous avez le choix d'utiliser le mode avec état, sans état ou une combinaison des deux**.
 
-Chaque règle doit être tapée sur une ligne séparée. Référez-vous à la théorie et appuyez-vous sur des informations trouvées sur Internet pour traduire votre tableau de règles de filtrage en commandes `nftables`. Les règles prennent effet immédiatement après avoir appuyé sur &lt;enter>\. Vous pouvez donc les tester au fur et à mesure que vous les configurez.
+Chaque règle doit être tapée sur une ligne séparée. Référez-vous à la théorie et appuyez-vous sur des informations trouvées sur Internet pour traduire votre tableau de règles de filtrage en commandes `nftables`. Les règles prennent effet immédiatement après avoir appuyé sur \<enter\>. Vous pouvez donc les tester au fur et à mesure que vous les configurez.
 
 
 ## Sauvegarde et récupération des règles
 
 **Important** : Les règles de filtrage définies avec `nftables` ne sont pas persistantes (par défaut, elles sont perdues après chaque redémarrage de la machine firewall). Il existe pourtant de manières de sauvegarder votre config.
 
-<ol type="a" start="4">
-  <li>Faire une recherche et expliquer une méthode de rendre la config de votre firewall persistente.
-  </li>                                  
-</ol>
+d) Faire une recherche et expliquer une méthode de rendre la config de votre firewall persistente.
 
 ---
 
@@ -349,10 +337,7 @@ Chaque règle doit être tapée sur une ligne séparée. Référez-vous à la th
 &rarr; Note : Puisque vous travaillez depuis un terminal natif de votre machin hôte, vous pouvez facilement copier/coller les règles dans un fichier local. Vous pouvez ensuite les utiliser pour reconfigurer votre firewall en cas de besoin.
 
 
-<ol type="a" start="5">
-  <li>Quelle commande affiche toutes les règles de filtrage en vigueur ?
-  </li>                                  
-</ol>
+e) Quelle commande affiche toutes les règles de filtrage en vigueur ?
 
 ---
 
@@ -361,10 +346,7 @@ Chaque règle doit être tapée sur une ligne séparée. Référez-vous à la th
 ---
 
 
-<ol type="a" start="6">
-  <li>Quelle commande est utilisée pour effacer toutes les règles de filtrage en vigueur ?
-  </li>                                  
-</ol>
+f) Quelle commande est utilisée pour effacer toutes les règles de filtrage en vigueur ?
 
 ---
 
@@ -373,10 +355,7 @@ Chaque règle doit être tapée sur une ligne séparée. Référez-vous à la th
 ---
 
 
-<ol type="a" start="7">
-  <li>Quelle commande est utilisée pour effacer les chaines ?
-  </li>                                  
-</ol>
+g) Quelle commande est utilisée pour effacer les chaines ?
 
 ---
 
@@ -410,10 +389,7 @@ LIVRABLE : Commandes nftables
 
 ### Questions
 
-<ol type="a" start="8">
-  <li>Afin de tester la connexion entre le client (Client_in_LAN) et le WAN, tapez la commande suivante depuis le client :
-  </li>                                  
-</ol>
+h) Afin de tester la connexion entre le client (Client_in_LAN) et le WAN, tapez la commande suivante depuis le client :
 
 ```bash
 ping 8.8.8.8
@@ -432,10 +408,7 @@ traceroute -I 8.8.8.8
 
 ---
 
-<ol type="a" start="9">
-  <li>Analysez le résultat de la commande traceroute. Que se passe-t-il lors du premier saut ?
-  </li>                                  
-</ol>
+i) Analysez le résultat de la commande traceroute. Que se passe-t-il lors du premier saut ?
 
 ---
 
@@ -443,10 +416,7 @@ traceroute -I 8.8.8.8
 
 ---
 
-<ol type="a" start="10">
-  <li>Testez ensuite toutes les règles, depuis le Client_in_LAN puis depuis le serveur Web (Server_in_DMZ) et remplir le tableau suivant :
-  </li>                                  
-</ol>
+j) Testez ensuite toutes les règles, depuis le Client_in_LAN puis depuis le serveur Web (Server_in_DMZ) et remplir le tableau suivant :
 
 
 | De Client\_in\_LAN à | OK/KO | Commentaires et explications |
@@ -467,10 +437,7 @@ traceroute -I 8.8.8.8
 
 ## Règles pour le protocole DNS
 
-<ol type="a" start="11">
-  <li>Si un ping est effectué sur un serveur externe en utilisant en argument un nom DNS, le client ne pourra pas le résoudre. Le démontrer à l'aide d'une capture, par exemple avec la commande suivante :
-  </li>                                  
-</ol>
+k) Si un ping est effectué sur un serveur externe en utilisant en argument un nom DNS, le client ne pourra pas le résoudre. Le démontrer à l'aide d'une capture, par exemple avec la commande suivante :
 
 ```bash
 ping www.google.com
@@ -496,10 +463,7 @@ LIVRABLE : Commandes nftables
 
 ---
 
-<ol type="a" start="12">
-  <li>Tester en réitérant la commande ping sur le serveur de test (Google ou autre) :
-  </li>                                  
-</ol>
+l) Tester en réitérant la commande ping sur le serveur de test (Google ou autre) :
 
 ---
 
@@ -507,10 +471,7 @@ LIVRABLE : Commandes nftables
 
 ---
 
-<ol type="a" start="13">
-  <li>Remarques (sur le message du premier ping)?
-  </li>                                  
-</ol>
+m) Remarques (sur le message du premier ping)?
 
 ---
 **Réponse**
@@ -525,7 +486,7 @@ LIVRABLE : Commandes nftables
 Créer et appliquer les règles adéquates pour que les **conditions 3 et 4 du cahier des charges** soient respectées. Tester que les règles soient fonctionnelles en utilisant wget depuis le Client\_in\_LAN pour télécharger une ressource depuis un site Web de votre choix (sur le WAN). Par exemple :
 
 ```bash
-wget http://www.heig-vd.ch
+wget https://www.heig-vd.ch
 ```
 
 * Créer et appliquer les règles adéquates avec des commandes nftables.
@@ -551,10 +512,7 @@ LIVRABLE : Commandes nftables
 ```
 ---
 
-<ol type="a" start="14">
-  <li>Tester l’accès à ce serveur depuis le LAN utilisant utilisant wget (ne pas oublier les captures d'écran).
-  </li>                                  
-</ol>
+n) Tester l’accès à ce serveur depuis le LAN utilisant utilisant wget (ne pas oublier les captures d'écran).
 
 ---
 
@@ -565,10 +523,7 @@ LIVRABLE : Commandes nftables
 
 ## Règles pour le protocole ssh
 
-<ol type="a" start="15">
-  <li>Créer et appliquer la règle adéquate pour que les <b>conditions 6 et 7 du cahier des charges</b> soient respectées.
-  </li>                                  
-</ol>
+o) Créer et appliquer la règle adéquate pour que les <b>conditions 6 et 7 du cahier des charges</b> soient respectées.
 
 Commandes nftables :
 
@@ -583,7 +538,7 @@ LIVRABLE : Commandes nftables
 Depuis le client dans le LAN, tester l’accès avec la commande suivante :
 
 ```bash
-ssh root@192.168.200.3
+ssh 192.168.200.3
 ```
 
 ---
@@ -592,10 +547,8 @@ ssh root@192.168.200.3
 
 ---
 
-<ol type="a" start="16">
-  <li>Expliquer l'utilité de <b>ssh</b> sur un serveur.
-  </li>                                  
-</ol>
+p) Expliquer l'utilité de <b>ssh</b> sur un serveur. 
+Bonus: expliquez comment les trois machines se font confiance pour les connections ssh.
 
 ---
 **Réponse**
@@ -604,10 +557,7 @@ ssh root@192.168.200.3
 
 ---
 
-<ol type="a" start="17">
-  <li>En général, à quoi faut-il particulièrement faire attention lors de l'écriture des règles du pare-feu pour ce type de connexion ?
-  </li>                                  
-</ol>
+q) En général, à quoi faut-il particulièrement faire attention lors de l'écriture des règles du pare-feu pour ce type de connexion ?
 
 
 ---
@@ -621,10 +571,7 @@ ssh root@192.168.200.3
 
 A présent, vous devriez avoir le matériel nécessaire afin de reproduire la table de filtrage que vous avez conçue au début de ce laboratoire.
 
-<ol type="a" start="18">
-  <li>Insérer la capture d’écran avec toutes vos règles nftables
-  </li>                                  
-</ol>
+r) Insérer la capture d’écran avec toutes vos règles nftables
 
 ---
 
