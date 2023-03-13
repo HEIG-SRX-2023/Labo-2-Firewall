@@ -423,7 +423,7 @@ j) Testez ensuite toutes les règles, depuis le Client_in_LAN puis depuis le ser
 | :---                 | :---: | :---                         |
 | Interface DMZ du FW  |       |                              |
 | Interface LAN du FW  |       |                              |
-| Client LAN           |       |                              |
+| Serveur DMZ          |       |                              |
 | Serveur WAN          |       |                              |
 
 
@@ -431,7 +431,7 @@ j) Testez ensuite toutes les règles, depuis le Client_in_LAN puis depuis le ser
 | :---                 | :---: | :---                         |
 | Interface DMZ du FW  |       |                              |
 | Interface LAN du FW  |       |                              |
-| Serveur DMZ          |       |                              |
+| Client LAN           |       |                              |
 | Serveur WAN          |       |                              |
 
 
